@@ -60,6 +60,15 @@ export const registerUser = async (req, res) => {
 };
 
 // User login
+export const generateToken = (user) => {
+    return jwt.sign(
+        { user_id: user._id, user_type: user.user_type },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' }
+    );
+};
+
+// User login
 export const loginUser = async (req, res) => {
     const { user_email, user_password } = req.body;
 
@@ -74,9 +83,7 @@ export const loginUser = async (req, res) => {
         }
 
         // Check password
-        console.log(user.user_password);
         const isMatch = await bcrypt.compare(user_password, user.user_password);
-        console.log(isMatch);
         if (!isMatch) {
             return res.status(400).json({
                 status: false,
@@ -84,18 +91,16 @@ export const loginUser = async (req, res) => {
             });
         }
 
-        // Create JWT token
-        const token = jwt.sign(
-            { user_id: user._id, user_type: user.user_type },
-            'your_jwt_secret',
-            { expiresIn: '1h' }
-        );
-
+        // Generate JWT token
+        const token = generateToken(user);
+        const ans1=jwt.verify(token, process.env.JWT_SECRET).user_type=='admin';
+        // Send response with token
         res.json({
             status: true,
             message: 'Login successful',
             token,
         });
+        
     } catch (error) {
         console.log(error.message);
         res.status(500).json({

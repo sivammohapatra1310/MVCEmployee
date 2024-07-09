@@ -2,6 +2,7 @@ import Employee from '../models/employee.js';
 import Department from '../models/department.js';
 import Position from '../models/position.js';
 import mongoose from 'mongoose';
+import { ObjectId } from 'mongodb';
 
 let employeeCounter = 1;
 
@@ -143,6 +144,7 @@ export const getEmployees = async (req, res) => {
         } else {
             res.status(200).json({
                 status: true,
+                total: employees.length, 
                 data: employees,
                 message: "Employees fetched successfully"
             });
@@ -200,7 +202,12 @@ export const getEmployees = async (req, res) => {
 export const updateEmployeeDetails = async (req, res) => {
     const { employee_id, contact_number, email, address } = req.body;
     try {
-        const employee = await Employee.findOne({ employee_id });
+        
+        console.log(req.body);
+        // const employee = await Employee.findById("668bda0b06a39116909feeef");
+        const employee = await Employee.findOne({  _id: new ObjectId('668cc1e19c4a56cdc68226e4')});
+
+        console.log("=======================",employee);
 
         if (!employee) {
             return res.status(400).json({
